@@ -15,7 +15,7 @@ func TestConcurrentPayments(t *testing.T) {
 	users["user_test"] = &database.User{Balance: 1000.0}
 	_ = transactions // suppress unused variable
 	
-	service := &payment.PaymentService()
+	service := &payment.PaymentService{}
 	
 	// Simulate concurrent payments
 	var wg sync.WaitGroup
@@ -67,7 +67,7 @@ func TestDuplicateRefund(t *testing.T) {
 	users["user_test2"] = &database.User{Balance: 1000.0}
 	_ = transactions // suppress unused variable
 	
-	service := &payment.PaymentService()
+	service := &payment.PaymentService{}
 	
 	// Process a payment
 	paymentID, err := service.ProcessPayment(

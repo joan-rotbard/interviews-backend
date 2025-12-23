@@ -1,3 +1,4 @@
 # Python dependencies
 # Note: This is a simple exercise, minimal dependencies needed
 
+pytest>=7.0.0

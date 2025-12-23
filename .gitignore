@@ -39,6 +39,7 @@ Thumbs.db
 # Interviewer files (keep local, don't commit)
 EVALUATION_GUIDE.md
 INTERVIEWER_NOTES.md
+python/demo_issues.py
 
 # Node.js
 node_modules/

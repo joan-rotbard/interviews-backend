@@ -1,10 +1,10 @@
 /**
- * Test file - Demonstrates some of the issues
+ * Test file for payment service
  * Run with: npm test
  */
 
-import { PaymentService } from '../src/payment/service';
 import * as db from '../src/database/db';
+import { PaymentService } from '../src/payment/service';
 
 describe('Payment Service Tests', () => {
   beforeEach(() => {
@@ -14,7 +14,7 @@ describe('Payment Service Tests', () => {
     Object.keys(connection.users).forEach(key => delete connection.users[key]);
   });
 
-  test('Concurrent Payments - Race Condition', () => {
+  test('Concurrent Payments', () => {
     // Reset database
     db.getConnection().users['user_test'] = { balance: 1000.0 };
     
@@ -42,7 +42,7 @@ describe('Payment Service Tests', () => {
     }
     
     return Promise.all(promises).then(() => {
-      // Check for duplicate payment IDs (race condition)
+      // Check for duplicate payment IDs
       console.log(`Results: ${results}`);
       const uniqueResults = new Set(results);
       console.log(`Unique payments: ${uniqueResults.size}`);
@@ -55,7 +55,7 @@ describe('Payment Service Tests', () => {
     });
   });
 
-  test('Duplicate Refund - Idempotency', () => {
+  test('Multiple Refunds', () => {
     // Reset database
     db.getConnection().users['user_test2'] = { balance: 1000.0 };
     
@@ -70,14 +70,14 @@ describe('Payment Service Tests', () => {
     const initialBalance = db.getUserBalance('user_test2');
     console.log(`Balance after payment: ${initialBalance}`);
     
-    // Process refund multiple times (should be idempotent but isn't)
+    // Process refund multiple times
     service.processRefund(paymentId, 100.0);
     service.processRefund(paymentId, 100.0);
     service.processRefund(paymentId, 100.0);
     
     const finalBalance = db.getUserBalance('user_test2');
     console.log(`Balance after 3 refunds: ${finalBalance}`);
-    console.log(`Expected balance: 1000.0 (should only refund once)`);
+    console.log(`Expected balance: 1000.0`);
     console.log(`Actual balance: ${finalBalance}`);
   });
 });

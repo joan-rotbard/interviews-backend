@@ -17,12 +17,6 @@
    pytest tests/
    ```
 
-4. **See Issues in Action (Optional):**
-   ```bash
-   python demo_issues.py
-   ```
-   This script demonstrates some of the problems you should identify and fix.
-
 ## Structure
 
 - `src/`: Main source code
@@ -31,5 +25,4 @@
   - `database/`: Database access layer
 - `tests/`: Test files
 - `main.py`: Entry point
-- `demo_issues.py`: Script to demonstrate issues
 

@@ -1,5 +1,5 @@
 """
-Test file - Demonstrates some of the issues
+Test file for payment service
 Run with: pytest tests/test_payment_service.py
 """
 
@@ -8,7 +8,7 @@ from src.payment.service import PaymentService
 from src.database import db
 
 def test_concurrent_payments():
-    """This test demonstrates race conditions"""
+    """Test concurrent payment processing"""
     # Reset database
     db.get_connection()["users"]["user_test"] = {"balance": 1000.0}
     
@@ -37,7 +37,7 @@ def test_concurrent_payments():
     for thread in threads:
         thread.join()
     
-    # Check for duplicate payment IDs (race condition)
+    # Check for duplicate payment IDs
     print(f"Results: {results}")
     print(f"Unique payments: {len(set(results))}")
     
@@ -49,7 +49,7 @@ def test_concurrent_payments():
 
 
 def test_duplicate_refund():
-    """This test demonstrates lack of idempotency"""
+    """Test refund processing"""
     # Reset database
     db.get_connection()["users"]["user_test2"] = {"balance": 1000.0}
     
@@ -64,25 +64,25 @@ def test_duplicate_refund():
     initial_balance = db.get_user_balance("user_test2")
     print(f"Balance after payment: {initial_balance}")
     
-    # Process refund multiple times (should be idempotent but isn't)
+    # Process refund multiple times
     service.process_refund(payment_id, 100.0)
     service.process_refund(payment_id, 100.0)
     service.process_refund(payment_id, 100.0)
     
     final_balance = db.get_user_balance("user_test2")
     print(f"Balance after 3 refunds: {final_balance}")
-    print(f"Expected balance: 1000.0 (should only refund once)")
+    print(f"Expected balance: 1000.0")
     print(f"Actual balance: {final_balance}")
 
 
 if __name__ == "__main__":
     print("=" * 50)
-    print("Test 1: Concurrent Payments (Race Condition)")
+    print("Test 1: Concurrent Payments")
     print("=" * 50)
     test_concurrent_payments()
     
     print("\n" + "=" * 50)
-    print("Test 2: Duplicate Refunds (Idempotency)")
+    print("Test 2: Multiple Refunds")
     print("=" * 50)
     test_duplicate_refund()
 

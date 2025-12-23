@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-// TestConcurrentPayments demonstrates race conditions
+// TestConcurrentPayments tests concurrent payment processing
 func TestConcurrentPayments(t *testing.T) {
 	// Reset database
 	transactions, users := database.GetConnection()
@@ -45,7 +45,7 @@ func TestConcurrentPayments(t *testing.T) {
 	
 	wg.Wait()
 	
-	// Check for duplicate payment IDs (race condition)
+	// Check for duplicate payment IDs
 	fmt.Printf("Results: %v\n", results)
 	uniqueResults := make(map[string]bool)
 	for _, r := range results {
@@ -60,7 +60,7 @@ func TestConcurrentPayments(t *testing.T) {
 	fmt.Printf("Actual balance: %.2f\n", balance)
 }
 
-// TestDuplicateRefund demonstrates lack of idempotency
+// TestDuplicateRefund tests refund processing
 func TestDuplicateRefund(t *testing.T) {
 	// Reset database
 	transactions, users := database.GetConnection()
@@ -81,14 +81,14 @@ func TestDuplicateRefund(t *testing.T) {
 	initialBalance := database.GetUserBalance("user_test2")
 	fmt.Printf("Balance after payment: %.2f\n", initialBalance)
 	
-	// Process refund multiple times (should be idempotent but isn't)
+	// Process refund multiple times
 	service.ProcessRefund(paymentID, 100.0)
 	service.ProcessRefund(paymentID, 100.0)
 	service.ProcessRefund(paymentID, 100.0)
 	
 	finalBalance := database.GetUserBalance("user_test2")
 	fmt.Printf("Balance after 3 refunds: %.2f\n", finalBalance)
-	fmt.Printf("Expected balance: 1000.0 (should only refund once)\n")
+	fmt.Printf("Expected balance: 1000.0\n")
 	fmt.Printf("Actual balance: %.2f\n", finalBalance)
 }
 

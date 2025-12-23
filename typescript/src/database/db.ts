@@ -1,5 +1,5 @@
 /**
- * Database layer - Contains issues with transaction handling and data integrity
+ * Database layer
  */
 
 interface Transaction {
@@ -26,13 +26,10 @@ export function getConnection(): { transactions: Record<string, Transaction>; us
 }
 
 export function savePayment(payment: any): string {
-  // Race condition: multiple threads can read same counter value
   paymentCounter++;
   
   const paymentId = `pay_${paymentCounter}`;
   payment.paymentId = paymentId;
-  
-  // No duplicate check, no transaction isolation
   transactions[paymentId] = {
     paymentId: paymentId,
     userId: payment.userId,
@@ -51,7 +48,6 @@ export function getPayment(paymentId: string): Transaction | undefined {
 }
 
 export function updatePaymentStatus(paymentId: string, status: string): boolean {
-  // NO TRANSACTION
   if (paymentId in transactions) {
     transactions[paymentId].status = status;
     return true;
@@ -60,18 +56,15 @@ export function updatePaymentStatus(paymentId: string, status: string): boolean 
 }
 
 export function getUserBalance(userId: string): number {
-  // NO LOCKING, RACE CONDITION
   const user = users[userId] || { balance: 0.0 };
   return user.balance;
 }
 
 export function updateUserBalance(userId: string, amount: number): number {
-  // NO TRANSACTION, RACE CONDITION
   if (!users[userId]) {
     users[userId] = { balance: 0.0 };
   }
   
-  // Race condition: read-modify-write without locking
   const currentBalance = users[userId].balance;
   users[userId].balance = currentBalance + amount;
   

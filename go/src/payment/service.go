@@ -11,14 +11,8 @@ import (
 type PaymentService struct{}
 
 // ProcessPayment processes a payment
-// Issues:
-// - No idempotency check
-// - No transaction handling
-// - Race conditions possible
-// - Tight coupling to concrete classes
-// - No error recovery
 func (s *PaymentService) ProcessPayment(userID string, amount float64, paymentType string, paymentData map[string]string) (string, error) {
-	// Create payment object based on type - violates Open/Closed Principle
+	// Create payment object based on type
 	var payment interface{}
 	
 	if paymentType == "credit_card" {
@@ -37,13 +31,13 @@ func (s *PaymentService) ProcessPayment(userID string, amount float64, paymentTy
 		return "", fmt.Errorf("unknown payment type: %s", paymentType)
 	}
 	
-	// Save payment BEFORE processing - if processing fails, we have orphaned record
+	// Save payment
 	paymentID, err := database.SavePayment(payment)
 	if err != nil {
 		return "", err
 	}
 	
-	// Process payment - if this fails, payment is saved but not processed
+	// Process payment
 	var result bool
 	var processErr error
 	
@@ -55,14 +49,12 @@ func (s *PaymentService) ProcessPayment(userID string, amount float64, paymentTy
 	}
 	
 	if processErr != nil {
-		// Error handling but payment already saved
 		database.UpdatePaymentStatus(paymentID, "failed")
 		return "", processErr
 	}
 	
 	if result {
 		database.UpdatePaymentStatus(paymentID, "processed")
-		// Update user balance - NO TRANSACTION with payment save
 		database.UpdateUserBalance(userID, -amount)
 	} else {
 		database.UpdatePaymentStatus(paymentID, "failed")
@@ -72,28 +64,23 @@ func (s *PaymentService) ProcessPayment(userID string, amount float64, paymentTy
 }
 
 // ProcessRefund processes a refund
-// Issues:
-// - No idempotency check (can refund multiple times)
-// - No validation that payment exists or was processed
-// - No transaction handling
-// - Race conditions possible
 func (s *PaymentService) ProcessRefund(paymentID string, amount float64) (string, error) {
-	// Get payment - but don't validate status
+	// Get payment
 	paymentData, err := database.GetPayment(paymentID)
 	if err != nil {
 		return "", errors.New("payment not found")
 	}
 	
-	// Create refund - no duplicate check
+	// Create refund
 	refund := models.NewRefund(fmt.Sprintf("refund_%s", paymentID), paymentID, amount)
 	
-	// Process refund - no validation
+	// Process refund
 	refund.Process()
 	
-	// Update payment status - NO TRANSACTION
+	// Update payment status
 	database.UpdatePaymentStatus(paymentID, "refunded")
 	
-	// Update user balance - NO TRANSACTION with payment update
+	// Update user balance
 	database.UpdateUserBalance(paymentData.UserID, amount)
 	
 	return refund.RefundID, nil

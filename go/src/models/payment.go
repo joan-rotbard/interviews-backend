@@ -65,7 +65,6 @@ func NewCreditCardPayment(paymentID string, userID string, amount float64, cardN
 
 // Process processes credit card payment
 func (p *CreditCardPayment) Process() (bool, error) {
-	// Directly accessing external service - tight coupling
 	result, err := processors.CreditCardProcessor(p.CardNumber, p.CVV, p.Expiry, p.Amount)
 	if err != nil {
 		return false, err
@@ -92,7 +91,6 @@ func NewPayPalPayment(paymentID string, userID string, amount float64, paypalEma
 
 // Process processes PayPal payment
 func (p *PayPalPayment) Process() (bool, error) {
-	// Directly accessing external service - tight coupling
 	result, err := processors.PayPalProcessor(p.PayPalEmail, p.Amount)
 	if err != nil {
 		return false, err
@@ -123,12 +121,11 @@ func NewRefund(refundID string, paymentID string, amount float64) *Refund {
 
 // Process processes the refund
 func (r *Refund) Process() (bool, error) {
-	// No validation, no idempotency check
 	r.Status = "processed"
 	return true, nil
 }
 
-// PaymentProcessor interface - NOT USED (violates Open/Closed Principle)
+// PaymentProcessor interface
 type PaymentProcessor interface {
 	Process() (bool, error)
 }

@@ -1,5 +1,5 @@
 """
-Payment models - Contains issues with OOP design and data integrity
+Payment models
 """
 
 class Payment:
@@ -37,7 +37,6 @@ class CreditCardPayment(Payment):
     
     def process(self):
         """Process credit card payment"""
-        # Directly accessing external service - tight coupling
         from src.payment.processors import credit_card_processor
         result = credit_card_processor(self.card_number, self.cvv, self.expiry, self.amount)
         if result:
@@ -54,7 +53,6 @@ class PayPalPayment(Payment):
     
     def process(self):
         """Process PayPal payment"""
-        # Directly accessing external service - tight coupling
         from src.payment.processors import paypal_processor
         result = paypal_processor(self.paypal_email, self.amount)
         if result:
@@ -73,7 +71,6 @@ class Refund:
     
     def process(self):
         """Process the refund"""
-        # No validation, no idempotency check
         self.status = "processed"
         return True
 

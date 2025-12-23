@@ -1,5 +1,5 @@
 """
-Database layer - Contains issues with transaction handling and data integrity
+Database layer
 """
 
 # Simulated in-memory database
@@ -13,15 +13,12 @@ def get_connection():
 
 
 def save_payment(payment):
-    """Save payment to database - NO TRANSACTION, NO LOCKING"""
+    """Save payment to database"""
     global _payment_counter
     _payment_counter += 1
     
-    # Race condition: multiple threads can read same counter value
     payment_id = f"pay_{_payment_counter}"
     payment.payment_id = payment_id
-    
-    # No duplicate check, no transaction isolation
     _transactions[payment_id] = {
         "payment_id": payment_id,
         "user_id": payment.user_id,
@@ -41,7 +38,7 @@ def get_payment(payment_id):
 
 
 def update_payment_status(payment_id, status):
-    """Update payment status - NO TRANSACTION"""
+    """Update payment status"""
     if payment_id in _transactions:
         _transactions[payment_id]["status"] = status
         return True
@@ -49,17 +46,16 @@ def update_payment_status(payment_id, status):
 
 
 def get_user_balance(user_id):
-    """Get user balance - NO LOCKING, RACE CONDITION"""
+    """Get user balance"""
     user = _users.get(user_id, {"balance": 0.0})
     return user["balance"]
 
 
 def update_user_balance(user_id, amount):
-    """Update user balance - NO TRANSACTION, RACE CONDITION"""
+    """Update user balance"""
     if user_id not in _users:
         _users[user_id] = {"balance": 0.0}
     
-    # Race condition: read-modify-write without locking
     current_balance = _users[user_id]["balance"]
     _users[user_id]["balance"] = current_balance + amount
     

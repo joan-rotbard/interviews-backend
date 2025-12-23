@@ -1,5 +1,5 @@
 /**
- * Payment models - Contains issues with OOP design and data integrity
+ * Payment models
  */
 
 import { creditCardProcessor, paypalProcessor } from '../payment/processors';
@@ -48,7 +48,6 @@ export class CreditCardPayment extends Payment {
   }
 
   process(): boolean {
-    // Directly accessing external service - tight coupling
     const result = creditCardProcessor(this.cardNumber, this.cvv, this.expiry, this.amount);
     if (result) {
       this.status = "processed";
@@ -66,7 +65,6 @@ export class PayPalPayment extends Payment {
   }
 
   process(): boolean {
-    // Directly accessing external service - tight coupling
     const result = paypalProcessor(this.paypalEmail, this.amount);
     if (result) {
       this.status = "processed";
@@ -89,7 +87,6 @@ export class Refund {
   }
 
   process(): boolean {
-    // No validation, no idempotency check
     this.status = "processed";
     return true;
   }

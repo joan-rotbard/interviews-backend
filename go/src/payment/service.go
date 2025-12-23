@@ -34,7 +34,7 @@ func (s *PaymentService) ProcessPayment(userID string, amount float64, paymentTy
 			paymentData["email"],
 		)
 	} else {
-		return "", errors.New(fmt.Sprintf("unknown payment type: %s", paymentType))
+		return "", fmt.Errorf("unknown payment type: %s", paymentType)
 	}
 	
 	// Save payment BEFORE processing - if processing fails, we have orphaned record

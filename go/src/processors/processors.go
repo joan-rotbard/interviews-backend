@@ -1,4 +1,4 @@
-package payment
+package processors
 
 import (
 	"errors"

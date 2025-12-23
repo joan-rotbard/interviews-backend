@@ -1,8 +1,7 @@
 package models
 
 import (
-	"errors"
-	"payment-microservice/src/payment"
+	"payment-microservice/src/processors"
 )
 
 // Payment represents a payment transaction
@@ -67,7 +66,7 @@ func NewCreditCardPayment(paymentID string, userID string, amount float64, cardN
 // Process processes credit card payment
 func (p *CreditCardPayment) Process() (bool, error) {
 	// Directly accessing external service - tight coupling
-	result, err := payment.CreditCardProcessor(p.CardNumber, p.CVV, p.Expiry, p.Amount)
+	result, err := processors.CreditCardProcessor(p.CardNumber, p.CVV, p.Expiry, p.Amount)
 	if err != nil {
 		return false, err
 	}
@@ -94,7 +93,7 @@ func NewPayPalPayment(paymentID string, userID string, amount float64, paypalEma
 // Process processes PayPal payment
 func (p *PayPalPayment) Process() (bool, error) {
 	// Directly accessing external service - tight coupling
-	result, err := payment.PayPalProcessor(p.PayPalEmail, p.Amount)
+	result, err := processors.PayPalProcessor(p.PayPalEmail, p.Amount)
 	if err != nil {
 		return false, err
 	}
